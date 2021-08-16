@@ -55,7 +55,7 @@ class remote_control():
         self.MIROBOT_TWO_PORT = "/dev/ttyUSB_Mirobot2"
         self.MIROBOT_ONE_TIMER_LOG = "/home/pi/mirobot/timers/mirobot_one_timer.txt"
         self.MIROBOT_TWO_TIMER_LOG = "/home/pi/mirobot/timers/mirobot_two_timer.txt"
-        self.HOMING_TIMEOUT = 10  #Change this to appropiate timing
+        self.HOMING_TIMEOUT = 10  # Change this to appropiate timing
         self.prev_cx = [-1] * 25
         self.prev_cy = [-1] * 25
         self.prev_area = [-1] * 25
