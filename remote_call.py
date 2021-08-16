@@ -53,6 +53,9 @@ class remote_control():
         self.CAMERA_TWO_PORT = "/dev/ttyACM_OpenMV2"
         self.MIROBOT_ONE_PORT = "/dev/ttyUSB_Mirobot1"
         self.MIROBOT_TWO_PORT = "/dev/ttyUSB_Mirobot2"
+        self.MIROBOT_ONE_TIMER_LOG = "/home/pi/mirobot/timers/mirobot_one_timer.txt"
+        self.MIROBOT_TWO_TIMER_LOG = "/home/pi/mirobot/timers/mirobot_two_timer.txt"
+        self.HOMING_TIMEOUT = 10  #Change this to appropiate timing
         self.prev_cx = [-1] * 25
         self.prev_cy = [-1] * 25
         self.prev_area = [-1] * 25
@@ -60,9 +63,6 @@ class remote_control():
         self.color = []
         self.is_cube_list = []
         self.april_tags = {}
-        self.mirobot_one_timer
-        self.mirobot_two_timer
-        self.HOMING_TIMEOUT = 10
 
 
     def get_camera(self, port):
@@ -446,8 +446,8 @@ class remote_control():
         if port:
             with Mirobot(portname = port, debug=True) as m:
                 m.unlock_shaft()
-                m.go_to_zero()
-                time.sleep(1)
+                m.send_msg("M21 G90 G1 X0 Y0 Z0 A0 B0 C0")
+                # m.go_to_zero()
         else:
             print("Must spesify a valid port.")
     
@@ -520,9 +520,14 @@ class remote_control():
                 None
         '''
         if portname == self.MIROBOT_ONE_PORT:
-            self.mirobot_one_timer = ( time.time() / 60 )
+            with open(self.MIROBOT_ONE_TIMER_LOG, 'w', encoding = 'utf-8') as f:
+                mirobot_one_timer = str( ( time.time() / 60 ) )
+                f.write(mirobot_one_timer)
+                
         if portname == self.MIROBOT_TWO_PORT:
-            self.mirobot_two_timer = ( time.time() / 60 )
+            with open(self.MIROBOT_TWO_TIMER_LOG, 'w', encoding = 'utf-8') as f:
+                mirobot_two_timer = str( ( time.time() / 60 ) )
+                f.write(mirobot_two_timer)
 
     def check_homing_timer(self, portname):
         '''
@@ -540,15 +545,26 @@ class remote_control():
         minutes_since_epoch = time.time() / 60
 
         if portname == self.MIROBOT_ONE_PORT:
-            if (minutes_since_epoch - self.mirobot_one_timer < self.HOMING_TIMEOUT):
+            mirobot_one_timer = 0.0
+            
+            with open(self.MIROBOT_ONE_TIMER_LOG, 'r', encoding = 'utf-8') as f:
+                mirobot_one_timer = float( f.read() )
+            
+            if (minutes_since_epoch - mirobot_one_timer < self.HOMING_TIMEOUT):
                 return False
-            elif (minutes_since_epoch - self.mirobot_one_timer >= self.HOMING_TIMEOUT):
+            elif (minutes_since_epoch - mirobot_one_timer >= self.HOMING_TIMEOUT):
                 return True
 
         if portname == self.MIROBOT_TWO_PORT:
-            if (minutes_since_epoch - self.mirobot_two_timer < self.HOMING_TIMEOUT):
+            
+            mirobot_two_timer = 0.0
+            
+            with open(self.MIROBOT_TWO_TIMER_LOG, 'r', encoding = 'utf-8') as f:
+                mirobot_two_timer = float( f.read() )
+                
+            if (minutes_since_epoch - mirobot_two_timer < self.HOMING_TIMEOUT):
                 return False
-            elif (minutes_since_epoch - self.mirobot_two_timer >= self.HOMING_TIMEOUT):
+            elif (minutes_since_epoch - mirobot_two_timer >= self.HOMING_TIMEOUT):
                 return True
 
     def get_soft_limits(self, is_cube):
@@ -615,14 +631,13 @@ class remote_control():
         return int(sum(sample) / len(sample))
 
     def median(self, items):
-    if len(items) % 2:
-        return select_nth(len(items)//2, items)
+        if len(items) % 2:
+            return select_nth(len(items)//2, items)
+        else:
+            left  = select_nth((len(items)-1) // 2, items)
+            right = select_nth((len(items)+1) // 2, items)
 
-    else:
-        left  = select_nth((len(items)-1) // 2, items)
-        right = select_nth((len(items)+1) // 2, items)
-
-        return (left + right) / 2
+            return (left + right) / 2
  
     def select_nth(self, n, items):
         pivot = items[0]
