@@ -81,4 +81,7 @@ There are four functions to control the robot in this api.
  
  1. Reset the robot witht he reset button on the robot base.
  2. Home the robot before continuing to work.
+
+## Homing timer
+There is a timer activated when the robot is being homed. As long as this timer is within the limits set of the HOMING_TIMEOUT the robot do not need to be homed before operation. The time will be kept in two separate files, one for MIROBOT_ONE and one for MIROBOT_TWO. When the timer is set, the contents in this file will be replaced. When doing other operations the saved time will be checked against the epoch time, to find out how long time it was since last homing.
    
