@@ -6,7 +6,7 @@ to both the OpenMV and the Mirobot. </br>
 
 `test_cam.py` and `test_robot.py`demonstrates examples of how to use the API. </br></br>
 
-`test_robot_async.py` and `test_robot_thread.py` demonstrates examples of Homing both Mirobot in async and parallell using threads. </br></br>
+`test_robot_async.py` and `test_robot_thread.py` demonstrates examples of Homing both Mirobots in async and parallell using threads. </br></br>
 
 CAUTION WHILE USING test_robot.py, test_robot_async.py and test_robot_thread.py:
 The cartesian coordinates passed in the file test_robot.py, test_robot_async.py and test_robot_thread.py will command the robot to go to a particular coordinate in 3D space. The robot does not have a crash limit and with values more or less than a particular limit (pls refer manual), it might self-destruct and unleash its wrath before you blink. 
